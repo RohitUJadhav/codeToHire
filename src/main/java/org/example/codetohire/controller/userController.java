@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.codetohire.config.SecurityConfig;
 import org.example.codetohire.entity.User;
 import org.example.codetohire.enums.Role;
+import org.example.codetohire.exception.UserAlreadyExistsException;
 import org.example.codetohire.repository.userRepo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class userController {
     public ResponseEntity<?> signUp( @Valid @RequestBody User user){
 
         if(userrepo.findByEmail(user.getEmail()).isPresent()){
-            return  ResponseEntity.badRequest().body("user is already exist");
+           throw  new UserAlreadyExistsException("User already exists with this email");
         }
         user.setPassword(securityConfig.passwordEncoder().encode(user.getPassword()));
         user.setRole(Role.STUDENT);
