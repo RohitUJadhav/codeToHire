@@ -1,15 +1,17 @@
 package org.example.codetohire.config;
 
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -27,21 +29,26 @@ public class SecurityConfig {
 
         return new BCryptPasswordEncoder();
     }
+    @Bean
+    public InMemoryUserDetailsManager inMemoryUserDetailsManager(PasswordEncoder passwordEncoder) {
+       UserDetails admin = User.withUsername("ADMIN").password(passwordEncoder.encode("admin")).roles("ADMIN").build();
+       return  new InMemoryUserDetailsManager(admin);
+    }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, HttpSession httpSession, HttpServletResponse httpServletResponse) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http ) throws Exception {
         http.cors(cors ->{})
                 .csrf(csrf -> csrf.disable( ))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/signUp").permitAll()
-                        .requestMatchers("/admin/question/addQuestion").permitAll()
+                        .requestMatchers("/admin/question/**").hasRole("ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/**").hasRole("STUDENT")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginProcessingUrl("/login")
                         .successHandler((request, response, authentication) -> {
-                            response.setStatus(httpServletResponse.SC_OK);
+                            response.setStatus(HttpServletResponse.SC_OK);
                             response.getWriter().write("Login Successful");
                         })
                         .failureHandler((request, response, exception) -> {
@@ -50,7 +57,6 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
         return http.build();
-
     }
 
     @Bean
