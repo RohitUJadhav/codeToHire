@@ -20,8 +20,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/question")
-@CrossOrigin (origins = "http://localhost:3000", allowCredentials = "true")
 @RequiredArgsConstructor
+@CrossOrigin (origins = "http://localhost:3000", allowCredentials = "true")
 public class addQuestionController {
 
     @Autowired

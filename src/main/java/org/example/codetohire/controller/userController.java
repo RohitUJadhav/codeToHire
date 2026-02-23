@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin (origins = "http://localhost:3000", allowCredentials = "true")
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+
 public class userController {
 
 
@@ -25,7 +26,7 @@ public class userController {
         if(userrepo.findByEmail(user.getEmail()).isPresent()){
            throw  new UserAlreadyExistsException("User already exists with this email");
         }
-        user.setPassword(securityConfig.passwordEncoder().encode(user.getPassword()));
+        user.setPassword(securityConfig.passwordEncoder2().encode(user.getPassword()));
         user.setRole(Role.STUDENT);
         userrepo.save(user);
         return ResponseEntity.ok("User has been created");

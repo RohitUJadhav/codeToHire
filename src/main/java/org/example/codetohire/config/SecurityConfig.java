@@ -1,6 +1,7 @@
 package org.example.codetohire.config;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,30 +26,35 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder2() {
 
         return new BCryptPasswordEncoder();
     }
+//    @Bean
+//    public InMemoryUserDetailsManager inMemoryUserDetailsManager(PasswordEncoder passwordEncoder) {
+//       UserDetails admin = User.withUsername("ADMIN").password(passwordEncoder.encode("admin")).roles("ADMIN").build();
+//       return  new InMemoryUserDetailsManager(admin);
+//    }
+        // this above method is causes to login check for admin
     @Bean
-    public InMemoryUserDetailsManager inMemoryUserDetailsManager(PasswordEncoder passwordEncoder) {
-       UserDetails admin = User.withUsername("ADMIN").password(passwordEncoder.encode("admin")).roles("ADMIN").build();
-       return  new InMemoryUserDetailsManager(admin);
-    }
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http ) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, HttpSession httpSession, HttpServletResponse httpServletResponse) throws Exception {
         http.cors(cors ->{})
                 .csrf(csrf -> csrf.disable( ))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/signUp").permitAll()
-                        .requestMatchers("/admin/question/**").hasRole("ADMIN")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/user/**").hasRole("STUDENT")
-                        .anyRequest().authenticated())
+                        .requestMatchers("/admin/question/addQuestion").permitAll()
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers("/admin/question/**").permitAll()
+                        .requestMatchers("/student/questions/**").permitAll()
+//                        .requestMatchers("/admin/**").hasRole("ADMIN")
+//                        .requestMatchers("/user/**").hasRole("STUDENT")
+                        .anyRequest().permitAll())
+
                 .formLogin(form -> form
-                        .loginProcessingUrl("/login")
+                        .loginProcessingUrl("/login").permitAll()
                         .successHandler((request, response, authentication) -> {
-                            response.setStatus(HttpServletResponse.SC_OK);
+                            response.setStatus(httpServletResponse.SC_OK);
                             response.getWriter().write("Login Successful");
                         })
                         .failureHandler((request, response, exception) -> {
