@@ -18,6 +18,7 @@ public class TestCase {
     private Long id;
     private String input;
     private String expectedOutput;
+
     private Boolean isHidden;
 
     @ManyToOne

@@ -47,6 +47,8 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/admin/question/**").permitAll()
                         .requestMatchers("/student/questions/**").permitAll()
+                        .requestMatchers("/code/**").permitAll()
+                        .requestMatchers("/api/test/code").permitAll()
 //                        .requestMatchers("/admin/**").hasRole("ADMIN")
 //                        .requestMatchers("/user/**").hasRole("STUDENT")
                         .anyRequest().permitAll())
